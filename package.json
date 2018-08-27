@@ -1,0 +1,37 @@
+{
+  "name": "jaas-monitor",
+  "version": "0.1.0",
+  "description": "Monitor all your JAAS models",
+  "main": "monitor.js",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "tap test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frankban/jaas-monitor.git"
+  },
+  "keywords": [
+    "jaas",
+    "monitor",
+    "models"
+  ],
+  "author": "Francesco Banconi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/frankban/jaas-monitor/issues"
+  },
+  "homepage": "https://github.com/frankban/jaas-monitor#readme",
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "tap": "^12.0.1"
+  },
+  "dependencies": {
+    "btoa": "^1.2.1",
+    "concurrency-limiter": "^0.1.0",
+    "jujulib": "^0.2.0",
+    "macaroon-bakery": "^0.2.0",
+    "websocket": "^1.0.26",
+    "xhr2": "^0.1.4"
+  }
+}
