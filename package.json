@@ -24,6 +24,7 @@
   "homepage": "https://github.com/frankban/jaas-monitor#readme",
   "devDependencies": {
     "eslint": "^4.19.1",
+    "parcel-bundler": "^1.9.7",
     "tap": "^12.0.1"
   },
   "dependencies": {

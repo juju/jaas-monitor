@@ -3,16 +3,23 @@
 PROJECT=jaas-monitor
 NODE_MODULES = node_modules
 
+PARCEL = node_modules/parcel-bundler/bin/cli.js
+WEBAPP = examples/browser/index.html
+
+
 $(NODE_MODULES):
 	npm install
-	npm ls --depth=0
+
+.PHONY: build
+build: setup
+	$(PARCEL) build $(WEBAPP)
 
 .PHONY: check
 check: lint test
 
 .PHONY: clean
 clean:
-	rm -rfv $(NODE_MODULES)/
+	rm -rfv $(NODE_MODULES)/ dist .cache
 	rm -fv package-lock.json
 
 .PHONY: help
@@ -40,8 +47,13 @@ release: clean check
 	git push --tags
 	npm publish
 
+.PHONY: run
+run: setup
+	$(PARCEL) $(WEBAPP)
+
 .PHONY: setup
 setup: $(NODE_MODULES)
+
 
 .PHONY: test
 test: setup
