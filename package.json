@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/frankban/jaas-monitor#readme",
   "devDependencies": {
-    "eslint": "^4.19.1",
+    "eslint": "^5.5.0",
     "parcel-bundler": "^1.9.7",
     "tap": "^12.0.1"
   },
@@ -34,5 +34,8 @@
     "macaroon-bakery": "^0.2.0",
     "websocket": "^1.0.26",
     "xhr2": "^0.1.4"
-  }
+  },
+  "browserslist": [
+    "last 1 Chrome version"
+  ]
 }
