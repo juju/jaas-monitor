@@ -3,7 +3,7 @@
 PROJECT=jaas-monitor
 NODE_MODULES = node_modules
 
-PARCEL = node_modules/parcel-bundler/bin/cli.js
+PARCEL = node_modules/.bin/parcel
 WEBAPP = examples/browser/index.html
 
 
@@ -19,8 +19,8 @@ check: lint test
 
 .PHONY: clean
 clean:
-	rm -rfv $(NODE_MODULES)/ dist .cache
-	rm -fv package-lock.json
+	rm -rf $(NODE_MODULES)/ dist .cache
+	rm -f package-lock.json
 
 .PHONY: help
 help:
