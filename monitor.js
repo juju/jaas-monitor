@@ -1,17 +1,39 @@
 // Copyright 2018 Canonical Ltd.
 // Licensed under the LGPLv3, see LICENCE.txt file for details.
 
-const WebSocket = require('websocket').w3cwebsocket;
-const bakery = require('macaroon-bakery');
-// Bakery uses btoa and MLHttpRequest.
-global.btoa = require('btoa');
-global.XMLHttpRequest = require('xhr2');
+'use strict';
+
 
 const jujulib = require('jujulib');
 const Limiter = require('concurrency-limiter');
 
 
-async function run(controllerURL, options, checkers, writer) {
+/**
+  Run the monitor, which in turns run all the checkers against all the models
+  the user owns in the provided controller.
+
+  @param {String} controllerURL The URL of the controller where to connect to.
+  @param {Object} options Options for establishing the jujulib connection.
+  @param {Array of functions} checkers A list of checker functions to run
+    on every model in the controller. A checker is an asynchronous function
+    whose promise is resolved when the check has been performed. It takes the
+    following arguments:
+      - connect: a function returning a jujulib connection to the model and a
+        logout function to disconnect from the model. It is checker's
+        responsibility to close the connection when done;
+      - status: a recent full status of the model;
+      - ui: the ui provided to run (see below).
+  @param {Object} ui An object that can be used to interact with the user, with
+    the following methods:
+      - log(msg): write a log message;
+      - info(msg): write an info message;
+      - error(msg): notify an error exists in the model;
+      - addAction(msg, callback): provide an action with the given message.
+        When the action is triggered, the given callback must be called.
+  @returns {Promise} Resolved when all checks have been performed on all
+    models.
+*/
+async function run(controllerURL, options, checkers, ui) {
   const limiter = new Limiter(20);
   const connector = new Connector(controllerURL, options, limiter);
   // Connect to the JAAS controller.
@@ -23,32 +45,22 @@ async function run(controllerURL, options, checkers, writer) {
   // Retrieve the full status from every model.
   const promises = result.userModels.map(model => {
     const modelURL = controllerURL.replace('/api', `/model/${model.model.uuid}/api`);
-    return inspectModel(modelURL, options, limiter, checkers, writer);
+    return inspectModel(modelURL, options, limiter, checkers, ui);
   });
   await Promise.all(promises);
-  writer.log('done');
+  ui.info('all models checked');
 }
 
 
-async function inspectModel(modelURL, options, limiter, checkers, writer) {
-  writer.log(`inspecting model at ${modelURL}`);
-  const connector = new Connector(modelURL, options, limiter);
-  try {
-    const {conn, logout} = await connector.connect();
-    const client = conn.facades.client;
-    const status = await client.fullStatus();
-    const connect = connector.connect.bind(connector);
-    const promises = checkers.map(checker => {
-      return runChecker(checker, connect, status, writer);
-    });
-    await Promise.all(promises);
-    logout();
-  } catch (err) {
-    writer.error(`cannot inspect model at ${modelURL}: ${err}`);
-  }
-}
+/**
+  Manage connecting to Juju models and controllers, and reusing existing
+  connections if they are still alive.
 
-
+  @param {String} url The URL of the controller or model where to connect to.
+  @param {Object} options Options for establishing the jujulib connection.
+  @param {Object} limiter A Limiter instance, used for limiting concurrent
+    connections.
+*/
 class Connector {
   constructor(url, options, limiter) {
     this.url = url;
@@ -74,109 +86,43 @@ class Connector {
 }
 
 
-async function runChecker(checker, connect, status, writer) {
+/**
+  Run all provided checkers against the model at the provided URL.
+
+  @param {String} modelURL The URL of the model where to connect to.
+  @param {Object} options Options for establishing the jujulib connection.
+  @param {Object} limiter A Limiter instance, used for limiting concurrent
+    connections.
+  @param {Array of functions} checkers A list of checker functions to run.
+  @param {Object} ui An object that can be used to interact with the user.
+  @returns {Promise} Resolved when all checks have been performed.
+*/
+async function inspectModel(modelURL, options, limiter, checkers, ui) {
+  ui.log(`inspecting model at ${modelURL}`);
+  const connector = new Connector(modelURL, options, limiter);
   try {
-    await checker(connect, status, writer);
-  } catch (err) {
-    writer.error(`cannot run checker ${checker.name}: ${err}`);
-  }
-}
-
-
-async function main() {
-  const options = {
-    debug: false,
-    facades: [
-      require('jujulib/api/facades/application-v5.js'),
-      require('jujulib/api/facades/client-v1.js'),
-      require('jujulib/api/facades/model-manager-v4.js')
-    ],
-    wsclass: WebSocket,
-    bakery: new bakery.Bakery({
-      visitPage: resp => console.log('visit this URL to login:', resp.Info.VisitURL)
-    })
-  };
-  const checkers = [checkModel, checkUnits, checkJujushell];
-  try {
-    await run('wss://jimm.jujucharms.com:443/api', options, checkers, console);
-  } catch (err) {
-    console.log(err);
-    process.exit(1);
-  }
-  process.exit(0);
-}
-
-
-main();
-
-
-// Checkers.
-
-async function checkModel(connect, status, writer) {
-  const model = status.model;
-  writer.log(`model ${model.name} - ${model.cloudTag.slice(6)} (${model.region})`);
-  const modelStatus = model.modelStatus.status;
-  if (modelStatus !== 'available') {
-    writer.log(`model ${model.name} - status is ${modelStatus}`);
-  }
-}
-
-
-async function checkUnits(connect, logout, status, writer) {
-  for (let app in status.applications) {
-    const units = status.applications[app].units;
-    for (let unit in units) {
-      const workloadStatus = units[unit].workloadStatus;
-      if (workloadStatus.status === 'error') {
-        writer.log(`model ${status.model.name} - unit ${unit} is in ${workloadStatus.status} state: ${workloadStatus.info}`);
-      }
-    }
-  }
-}
-
-
-async function checkJujushell(connect, status, writer) {
-  const {conn, logout} = await connect();
-  const application = conn.facades.application;
-  try {
-    for (let app in status.applications) {
-      const info = status.applications[app];
-      if (!info.charm.startsWith('cs:~juju-gui/jujushell')) {
-        continue;
-      }
-      const result = await application.get({application: app});
-      const dnsName = result.config['dns-name'].value;
-      const resp = await makeRequest('GET', `https://${dnsName}/metrics`);
-      let numErrors = 0;
-      resp.split('\n').forEach(line => {
-        if (line.startsWith('jujushell_errors_count')) {
-          numErrors += parseInt(line.split(' ').reverse()[0], 10);
-        }
-      });
-      if (numErrors > 0) {
-        writer.log(`model ${status.model.name} - app ${app} exposed at ${dnsName} has ${numErrors}`);
-      }
-    }
-  } finally {
+    const {conn, logout} = await connector.connect();
+    const client = conn.facades.client;
+    const status = await client.fullStatus();
+    const connect = connector.connect.bind(connector);
+    const promises = checkers.map(checker => {
+      return runChecker(checker, connect, status, ui);
+    });
+    await Promise.all(promises);
     logout();
+  } catch (err) {
+    ui.error(`cannot inspect model at ${modelURL}: ${err}`);
   }
 }
 
 
-function makeRequest(method, url) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open(method, url);
-    xhr.onload = function() {
-      if (this.status >= 200 && this.status < 300) {
-        resolve(xhr.response);
-        return;
-      }
-      reject({status: this.status, statusText: xhr.statusText});
-    };
-    xhr.onerror = function() {
-      reject({status: this.status, statusText: xhr.statusText});
-    };
-    xhr.send();
-  });
+async function runChecker(checker, connect, status, ui) {
+  try {
+    await checker(connect, status, ui);
+  } catch (err) {
+    ui.error(`cannot run checker ${checker.name}: ${err}`);
+  }
 }
+
+
+module.exports = run;
