@@ -27,7 +27,24 @@ async function checkUnits(connect, status, ui) {
       const workloadStatus = units[unit].workloadStatus;
       if (workloadStatus.status === 'error') {
         ui.error(`model ${status.model.name} - unit ${unit} is in ${workloadStatus.status} state: ${workloadStatus.info}`);
-        ui.addAction('retry', () => ui.info('retried'));
+        ui.addAction('retry', async () => {
+          const {conn, logout} = await connect();
+          try {
+            ui.log(`retrying unit ${unit}`);
+            await conn.facades.client.resolved({unitName: unit});
+          } finally {
+            logout();
+            ui.refresh();
+          }
+        });
+        const {conn, logout} = await connect();
+        try {
+          const info = await conn.facades.client.modelInfo();
+          const user = info.ownerTag.split('@')[0].slice(5);
+          ui.addLink('open GUI', `https://jujucharms.com/u/${user}/${status.model.name}`);
+        } finally {
+          logout();
+        }
       }
     }
   }

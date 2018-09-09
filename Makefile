@@ -12,6 +12,7 @@ $(NODE_MODULES):
 
 .PHONY: build
 build: setup
+	rm -rf dist .cache
 	$(PARCEL) build $(WEBAPP)
 
 .PHONY: check
@@ -30,6 +31,8 @@ help:
 	@echo 'make check - run both linter and tests'
 	@echo 'make clean - get rid of development and build artifacts'
 	@echo 'make release - publish a release on npm'
+	@echo 'make run - run parcel development server'
+	@echo 'make build - build parcel package'
 
 .PHONY: lint
 lint: setup
@@ -49,11 +52,11 @@ release: clean check
 
 .PHONY: run
 run: setup
+	rm -rf dist .cache
 	$(PARCEL) $(WEBAPP)
 
 .PHONY: setup
 setup: $(NODE_MODULES)
-
 
 .PHONY: test
 test: setup

@@ -28,7 +28,10 @@ const Limiter = require('concurrency-limiter');
       - log(msg): write a log message;
       - info(msg): write an info message;
       - error(msg): notify an error exists in the model;
-      - addAction(msg, callback): provide an action with the given message.
+      - addAction(msg, callback): provide an action with the given message, and
+        an asynchronous callback to be executed;
+      - addLink(text, href): provide a link as an option to the user;
+      - refresh(): refresh the whole user interface.
         When the action is triggered, the given callback must be called.
   @returns {Promise} Resolved when all checks have been performed on all
     models.
@@ -98,10 +101,10 @@ class Connector {
   @returns {Promise} Resolved when all checks have been performed.
 */
 async function inspectModel(modelURL, options, limiter, checkers, ui) {
-  ui.log(`inspecting model at ${modelURL}`);
   const connector = new Connector(modelURL, options, limiter);
   try {
     const {conn, logout} = await connector.connect();
+    ui.log(`inspecting model at ${modelURL}`);
     const client = conn.facades.client;
     const status = await client.fullStatus();
     const connect = connector.connect.bind(connector);
