@@ -3,9 +3,6 @@
 PROJECT=jaas-monitor
 NODE_MODULES = node_modules
 
-PARCEL = node_modules/.bin/parcel
-WEBAPP = examples/browser/index.html
-
 
 $(NODE_MODULES):
 	npm install
@@ -13,7 +10,7 @@ $(NODE_MODULES):
 .PHONY: build
 build: setup
 	rm -rf dist .cache
-	$(PARCEL) build $(WEBAPP)
+	npm run-script build
 
 .PHONY: check
 check: lint test
@@ -53,7 +50,7 @@ release: clean check
 .PHONY: run
 run: setup
 	rm -rf dist .cache
-	$(PARCEL) $(WEBAPP)
+	npm start
 
 .PHONY: setup
 setup: $(NODE_MODULES)

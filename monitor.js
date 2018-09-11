@@ -25,10 +25,12 @@ const Limiter = require('concurrency-limiter');
       - ui: the ui provided to run (see below).
   @param {Object} ui An object that can be used to interact with the user, with
     the following methods:
+      - withContext(ctx) -> new ui instance: create and return a new ui
+        instance with that context added;
       - log(msg): write a log message;
       - info(msg): write an info message;
       - error(msg): notify an error exists in the model;
-      - addAction(msg, callback): provide an action with the given message, and
+      - addAction(text, callback): provide an action with the given text, and
         an asynchronous callback to be executed;
       - addLink(text, href): provide a link as an option to the user;
       - refresh(): refresh the whole user interface.
@@ -51,7 +53,6 @@ async function run(controllerURL, options, checkers, ui) {
     return inspectModel(modelURL, options, limiter, checkers, ui);
   });
   await Promise.all(promises);
-  ui.info('all models checked');
 }
 
 
@@ -101,6 +102,7 @@ class Connector {
   @returns {Promise} Resolved when all checks have been performed.
 */
 async function inspectModel(modelURL, options, limiter, checkers, ui) {
+  ui = ui.withContext({model: modelURL});
   const connector = new Connector(modelURL, options, limiter);
   try {
     const {conn, logout} = await connector.connect();
@@ -120,6 +122,7 @@ async function inspectModel(modelURL, options, limiter, checkers, ui) {
 
 
 async function runChecker(checker, connect, status, ui) {
+  ui = ui.withContext({checker: checker.name});
   try {
     await checker(connect, status, ui);
   } catch (err) {
