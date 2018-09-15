@@ -7,7 +7,7 @@
 const PropTypes = require('prop-types');
 const React = require('react');
 
-const {Col, Icon, Row} = require('./widgets');
+const {Button, Col, Icon, Link, Row} = require('./widgets');
 
 
 class Dashboard extends React.Component {
@@ -16,11 +16,12 @@ class Dashboard extends React.Component {
   }
 
   render() {
+    console.log('============ DASHBOARD RENDER:', this.props.notes);
     const notes = this.props.notes.map(note => {
       const contents = [];
       note.infos.forEach(info => {
         contents.push(
-          <Row>
+          <Row key={note.key+'-infos'}>
             <Col size={1}><Icon name="information"></Icon></Col>
             <Col size={11}>{info}</Col>
           </Row>
@@ -28,13 +29,36 @@ class Dashboard extends React.Component {
       });
       note.errors.forEach(err => {
         contents.push(
-          <Row>
+          <Row key={note.key+'-errors'}>
             <Col size={1}><Icon name="error"></Icon></Col>
             <Col size={11}>{err}</Col>
           </Row>
         );
       });
-      return <div>{contents}</div>
+      if (note.actions.length || note.links.length) {
+        const cols = [];
+        note.actions.forEach(({text, callback}) => {
+          cols.push(
+            <Col key={note.key+'-action'} size={2}>
+              <Button callback={callback}>{text}</Button>
+            </Col>
+          );
+        });
+        note.links.forEach(({text, href}) => {
+          cols.push(
+            <Col key={note.key+'-link'} size={2}>
+              <Link href={href}>{text}</Link>
+            </Col>
+          );
+        });
+        contents.push(
+          <Row key={note.key+'-actions-and-links'}>
+            <Col size={1}></Col>
+            {cols}
+          </Row>
+        );
+      }
+      return contents
     });
     return <div>{notes}</div>;
   }

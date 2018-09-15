@@ -7,9 +7,12 @@
 const PropTypes = require('prop-types');
 const React = require('react');
 
+const {Col, Row} = require('./widgets');
+
 
 function StatusBar(props) {
-  return null;
+  const text = props.logs.slice().reverse().join('\n');
+  return <textarea rows="7" readOnly={true} value={text}></textarea>;
 }
 StatusBar.propTypes = {
   logs: PropTypes.array.isRequired

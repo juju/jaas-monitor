@@ -34,8 +34,17 @@ async function checkUnits(connect, status, ui) {
             await conn.facades.client.resolved({unitName: unit});
           } finally {
             logout();
-            ui.refresh();
           }
+          setTimeout(async () => {
+            const {conn, logout} = await connect();
+            try {
+              status = await conn.facades.client.fullStatus();
+            } finally {
+              logout();
+            }
+            ui.refresh();
+            checkUnits(connect, status, ui);
+          }, 3000);
         });
         const {conn, logout} = await connect();
         try {

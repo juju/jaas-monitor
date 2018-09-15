@@ -58,6 +58,7 @@ class Button extends React.Component {
   }
 
   render() {
+    const props = this.props;
     const state = this.state;
     return (
       <button className="p-button--positive" disabled={state.disabled} onClick={this.onClick}>

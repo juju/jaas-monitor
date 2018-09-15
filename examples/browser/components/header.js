@@ -11,18 +11,18 @@ const {Col, Icon, Row} = require('./widgets');
 
 
 function Header(props) {
-  if (props.started) {
+  if (props.msg) {
     return (
       <Row>
         <Col size={1}><Icon name="information"></Icon></Col>
-        <Col size={11}>Check started</Col>
+        <Col size={11}>{props.msg}</Col>
       </Row>
     );
   }
   return <Row><Col>Check the status of your JAAS models</Col></Row>;
 }
 Header.propTypes = {
-  started: PropTypes.bool.isRequired
+  msg: PropTypes.string.isRequired
 };
 
 
