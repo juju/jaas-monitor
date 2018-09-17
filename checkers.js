@@ -3,7 +3,6 @@
 
 'use strict';
 
-
 /**
   Check that the model agent is up and running.
 */
@@ -15,7 +14,6 @@ async function checkModel(connect, status, ui) {
   }
 }
 
-
 /**
   Check that there are no units in error.
   Provide the ability to retry units in error state.
@@ -26,17 +24,21 @@ async function checkUnits(connect, status, ui) {
     for (let unit in units) {
       const workloadStatus = units[unit].workloadStatus;
       if (workloadStatus.status === 'error') {
-        ui.error(`model ${status.model.name} - unit ${unit} is in ${workloadStatus.status} state: ${workloadStatus.info}`);
-        ui.addAction('retry', async () => {
-          const {conn, logout} = await connect();
+        ui.error(
+          `model ${status.model.name} - unit ${unit} is in ${
+            workloadStatus.status
+          } state: ${workloadStatus.info}`
+        );
+        ui.addAction('Retry', async () => {
+          const { conn, logout } = await connect();
           try {
             ui.log(`retrying unit ${unit}`);
-            await conn.facades.client.resolved({unitName: unit});
+            await conn.facades.client.resolved({ unitName: unit });
           } finally {
             logout();
           }
           setTimeout(async () => {
-            const {conn, logout} = await connect();
+            const { conn, logout } = await connect();
             try {
               status = await conn.facades.client.fullStatus();
             } finally {
@@ -46,11 +48,14 @@ async function checkUnits(connect, status, ui) {
             checkUnits(connect, status, ui);
           }, 3000);
         });
-        const {conn, logout} = await connect();
+        const { conn, logout } = await connect();
         try {
           const info = await conn.facades.client.modelInfo();
           const user = info.ownerTag.split('@')[0].slice(5);
-          ui.addLink('open GUI', `https://jujucharms.com/u/${user}/${status.model.name}`);
+          ui.addLink(
+            'Open GUI',
+            `https://jujucharms.com/u/${user}/${status.model.name}`
+          );
         } finally {
           logout();
         }
@@ -59,12 +64,11 @@ async function checkUnits(connect, status, ui) {
   }
 }
 
-
 /**
   Check jujushell errors.
 */
 async function checkJujushell(connect, status, ui) {
-  const {conn, logout} = await connect();
+  const { conn, logout } = await connect();
   const application = conn.facades.application;
   try {
     for (let app in status.applications) {
@@ -72,7 +76,7 @@ async function checkJujushell(connect, status, ui) {
       if (!info.charm.startsWith('cs:~juju-gui/jujushell')) {
         continue;
       }
-      const result = await application.get({application: app});
+      const result = await application.get({ application: app });
       const dnsName = result.config['dns-name'].value;
       const resp = await makeRequest('GET', `https://${dnsName}/metrics`);
       let numErrors = 0;
@@ -82,14 +86,17 @@ async function checkJujushell(connect, status, ui) {
         }
       });
       if (numErrors > 0) {
-        ui.error(`model ${status.model.name} - app ${app} exposed at ${dnsName} has ${numErrors} errors`);
+        ui.error(
+          `model ${
+            status.model.name
+          } - app ${app} exposed at ${dnsName} has ${numErrors} errors`
+        );
       }
     }
   } finally {
     logout();
   }
 }
-
 
 /**
   Send a XHR request using promises.
@@ -108,15 +115,14 @@ function makeRequest(method, url) {
         resolve(xhr.response);
         return;
       }
-      reject({status: this.status, statusText: xhr.statusText});
+      reject({ status: this.status, statusText: xhr.statusText });
     };
     xhr.onerror = function() {
-      reject({status: this.status, statusText: xhr.statusText});
+      reject({ status: this.status, statusText: xhr.statusText });
     };
     xhr.send();
   });
 }
-
 
 module.exports = {
   checkModel,
