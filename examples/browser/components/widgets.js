@@ -58,9 +58,11 @@ class Button extends React.Component {
   render() {
     const props = this.props;
     const state = this.state;
+    const buttonTypeClasses = `p-button--${props.type}`;
+
     return (
       <button
-        className="p-button--positive"
+        className={buttonTypeClasses}
         disabled={state.disabled}
         onClick={this.onClick}>
         {props.children}

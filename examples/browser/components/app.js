@@ -64,10 +64,10 @@ class App extends React.Component {
         <Header msg={state.headerMsg} url={state.loginURL} />
         <div className="p-strip">
           <div className="row">
-            <h1>Monitor your JAAS models.</h1>
+            <h1 className="u-no-margin--bottom">Monitor your JAAS models.</h1>
           </div>
         </div>
-        <Dashboard notes={state.notes} />
+        <Dashboard notifications={state.notes} />
         <footer className="p-footer" id="footer">
           <StatusBar logs={logs} />
         </footer>
