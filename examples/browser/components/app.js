@@ -12,7 +12,6 @@ const monitor = require('../../../monitor');
 const notes = require('../notes');
 const Dashboard = require('./dashboard');
 const Header = require('./header');
-const Login = require('./login');
 const StatusBar = require('./statusbar');
 const { Col, Row } = require('./widgets');
 
