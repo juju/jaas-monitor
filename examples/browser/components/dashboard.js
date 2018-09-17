@@ -62,7 +62,17 @@ class Dashboard extends React.Component {
       }
       return contents;
     });
-    return <div>{notes}</div>;
+    if (notes.length > 0) {
+      return (
+        <div className="p-strip--light">
+          <Row>
+            <Col size={12}>{notes}</Col>
+          </Row>
+        </div>
+      );
+    } else {
+      return null;
+    }
   }
 }
 

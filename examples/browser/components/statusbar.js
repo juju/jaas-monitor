@@ -13,7 +13,18 @@ function StatusBar(props) {
     .slice()
     .reverse()
     .join('\n');
-  return <textarea rows="7" readOnly={true} value={text} />;
+  return (
+    <div className="row">
+      <div className="col-12">
+        <textarea
+          rows="7"
+          readOnly={true}
+          value={text}
+          placeholder="Awaiting logs..."
+        />
+      </div>
+    </div>
+  );
 }
 StatusBar.propTypes = {
   logs: PropTypes.array.isRequired

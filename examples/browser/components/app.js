@@ -3,7 +3,6 @@
 
 'use strict';
 
-
 const bakery = require('macaroon-bakery');
 const PropTypes = require('prop-types');
 const React = require('react');
@@ -15,13 +14,12 @@ const Dashboard = require('./dashboard');
 const Header = require('./header');
 const Login = require('./login');
 const StatusBar = require('./statusbar');
-const {Col, Row} = require('./widgets');
-
+const { Col, Row } = require('./widgets');
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {loginURL: '', notes: [], headerMsg: ''};
+    this.state = { loginURL: '', notes: [], headerMsg: '' };
   }
 
   async componentDidMount() {
@@ -30,8 +28,9 @@ class App extends React.Component {
       debug: props.options.debug,
       facades: props.options.facades,
       bakery: new bakery.Bakery({
-        visitPage: resp => this.setState({loginURL: resp.Info.VisitURL}),
-        onSuccess: () => this.setState({loginURL: '', headerMsg: 'Check started'})
+        visitPage: resp => this.setState({ loginURL: resp.Info.VisitURL }),
+        onSuccess: () =>
+          this.setState({ loginURL: '', headerMsg: 'Check started' })
       })
     };
     const ui = new notes.UI(this._updateNote.bind(this));
@@ -40,7 +39,7 @@ class App extends React.Component {
     } catch (err) {
       ui.error(err);
     }
-    this.setState({headerMsg: 'Check completed'});
+    this.setState({ headerMsg: 'Check completed' });
   }
 
   _updateNote(note) {
@@ -55,7 +54,7 @@ class App extends React.Component {
     if (!found) {
       notes.push(note);
     }
-    this.setState({notes: notes});
+    this.setState({ notes: notes });
   }
 
   render() {
@@ -63,12 +62,15 @@ class App extends React.Component {
     const logs = state.notes.reduce((prev, cur) => prev.concat(cur.logs), []);
     return (
       <div>
-        <Row><Col><h1>JAAS Monitor</h1></Col></Row>
-        <Header msg={state.headerMsg}></Header>
-        <Login url={state.loginURL}></Login>
-        <Dashboard notes={state.notes}></Dashboard>
+        <Header msg={state.headerMsg} url={state.loginURL} />
+        <div className="p-strip">
+          <div className="row">
+            <h1>Monitor your JAAS models.</h1>
+          </div>
+        </div>
+        <Dashboard notes={state.notes} />
         <footer className="p-footer" id="footer">
-          <StatusBar logs={logs}></StatusBar>
+          <StatusBar logs={logs} />
         </footer>
       </div>
     );
@@ -83,6 +85,5 @@ App.propTypes = {
   }).isRequired,
   url: PropTypes.string.isRequired
 };
-
 
 module.exports = App;

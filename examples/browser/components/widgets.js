@@ -33,7 +33,7 @@ Icon.propTypes = {
 
 function Link(props) {
   return (
-    <a className="p-button--brand" href={props.href} target="_blank">
+    <a href={props.href} target="_blank">
       {props.children}
     </a>
   );
