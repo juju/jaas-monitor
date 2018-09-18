@@ -1,14 +1,30 @@
-env:
-  browser: true
-  node: true
-  es6: true
-parserOptions:
-  ecmaVersion: 2017
-rules:
-  eqeqeq: ["error"]
-  no-mixed-spaces-and-tabs: ["error"]
-  no-trailing-spaces: ["error"]
-  no-undef: 2
-  no-unused-vars: [2, {args: "none"}]
-  quotes: [2, "single"]
-  semi: [2, "always"]
+{
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": ["react"],
+  "rules": {
+    "eqeqeq": ["error"],
+    "no-mixed-spaces-and-tabs": ["error"],
+    "no-trailing-spaces": ["error"],
+    "no-undef": 2,
+    "no-unused-vars": [
+      2,
+      {
+        "args": "none"
+      }
+    ],
+    "quotes": [2, "single"],
+    "semi": [2, "always"],
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error"
+  }
+}
