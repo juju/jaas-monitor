@@ -6,7 +6,8 @@
 const PropTypes = require('prop-types');
 const React = require('react');
 
-const {Button, Col, Icon, Link, Row} = require('./widgets');
+const {Button, Col, Row} = require('./widgets');
+const Notification = require('./notification');
 
 class Dashboard extends React.Component {
   constructor(props) {
@@ -14,60 +15,68 @@ class Dashboard extends React.Component {
   }
 
   render() {
-    console.log('============ DASHBOARD RENDER:', this.props.notes);
-    const notes = this.props.notes.map(note => {
+    console.log('============ DASHBOARD RENDER:', this.props.notifications);
+    const notifications = this.props.notifications.map(notification => {
       const contents = [];
-      note.infos.forEach(info => {
+
+      notification.infos.forEach(info => {
         contents.push(
-          <Row key={note.key + '-infos'}>
-            <Col size={1}>
-              <Icon name="information" />
+          <Row key={notification.key + '-infos'}>
+            <Col size={12}>
+              <Notification type="information">{info}</Notification>
             </Col>
-            <Col size={11}>{info}</Col>
           </Row>
         );
       });
-      note.errors.forEach(err => {
+
+      notification.errors.forEach(err => {
         contents.push(
-          <Row key={note.key + '-errors'}>
-            <Col size={1}>
-              <Icon name="error" />
+          <Row key={notification.key + '-errors'}>
+            <Col size={12}>
+              <Notification type="negative">{err}</Notification>
             </Col>
-            <Col size={11}>{err}</Col>
           </Row>
         );
       });
-      if (note.actions.length || note.links.length) {
+
+      if (notification.actions.length || notification.links.length) {
         const cols = [];
-        note.actions.forEach(({text, callback}) => {
+        notification.links.forEach(({text, href}) => {
           cols.push(
-            <Col key={note.key + '-action'} size={2}>
-              <Button callback={callback}>{text}</Button>
-            </Col>
+            <Button type="neutral" href={href}>
+              {text}
+            </Button>
           );
         });
-        note.links.forEach(({text, href}) => {
+        notification.actions.forEach(({text, callback}) => {
           cols.push(
-            <Col key={note.key + '-link'} size={2}>
-              <Link href={href}>{text}</Link>
-            </Col>
+            <Button type="positive" callback={callback}>
+              {text}
+            </Button>
           );
         });
         contents.push(
-          <Row key={note.key + '-actions-and-links'}>
-            <Col size={1} />
-            {cols}
-          </Row>
+          <Row key={notification.key + '-actions-and-links'}>{cols}</Row>
         );
       }
       return contents;
     });
-    return <div>{notes}</div>;
+    if (notifications.length > 0) {
+      return (
+        <div className="p-strip--light">
+          <Row>
+            <div className="p-card--highlighted">{notifications}</div>
+          </Row>
+        </div>
+      );
+    } else {
+      return null;
+    }
   }
 }
 
 Dashboard.propTypes = {
-  notes: PropTypes.array.isRequired
+  notifications: PropTypes.array.isRequired
 };
 
 module.exports = Dashboard;

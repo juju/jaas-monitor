@@ -29,7 +29,7 @@ async function checkUnits(connect, status, ui) {
             workloadStatus.status
           } state: ${workloadStatus.info}`
         );
-        ui.addAction('retry', async () => {
+        ui.addAction('Retry', async () => {
           const {conn, logout} = await connect();
           try {
             ui.log(`retrying unit ${unit}`);
@@ -53,7 +53,7 @@ async function checkUnits(connect, status, ui) {
           const info = await conn.facades.client.modelInfo();
           const user = info.ownerTag.split('@')[0].slice(5);
           ui.addLink(
-            'open GUI',
+            'Open GUI',
             `https://jujucharms.com/u/${user}/${status.model.name}`
           );
         } finally {

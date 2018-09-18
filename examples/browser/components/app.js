@@ -12,7 +12,6 @@ const monitor = require('../../../monitor');
 const notes = require('../notes');
 const Dashboard = require('./dashboard');
 const Header = require('./header');
-const Login = require('./login');
 const StatusBar = require('./statusbar');
 const {Col, Row} = require('./widgets');
 
@@ -62,14 +61,15 @@ class App extends React.Component {
     const logs = state.notes.reduce((prev, cur) => prev.concat(cur.logs), []);
     return (
       <div>
-        <Row>
-          <Col>
-            <h1>JAAS Monitor</h1>
-          </Col>
-        </Row>
-        <Header msg={state.headerMsg} />
-        <Login url={state.loginURL} />
-        <Dashboard notes={state.notes} />
+        <Header msg={state.headerMsg} url={state.loginURL} />
+        <div className="p-strip">
+          <Row>
+            <Col size={12}>
+              <h1 className="u-no-margin--bottom">Monitor your JAAS models.</h1>
+            </Col>
+          </Row>
+        </div>
+        <Dashboard notifications={state.notes} />
         <footer className="p-footer" id="footer">
           <StatusBar logs={logs} />
         </footer>
