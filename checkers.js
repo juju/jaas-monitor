@@ -3,7 +3,6 @@
 
 'use strict';
 
-
 /**
   Check that the model agent is up and running.
 */
@@ -15,7 +14,6 @@ async function checkModel(connect, status, ui) {
   }
 }
 
-
 /**
   Check that there are no units in error.
   Provide the ability to retry units in error state.
@@ -26,7 +24,11 @@ async function checkUnits(connect, status, ui) {
     for (let unit in units) {
       const workloadStatus = units[unit].workloadStatus;
       if (workloadStatus.status === 'error') {
-        ui.error(`model ${status.model.name} - unit ${unit} is in ${workloadStatus.status} state: ${workloadStatus.info}`);
+        ui.error(
+          `model ${status.model.name} - unit ${unit} is in ${
+            workloadStatus.status
+          } state: ${workloadStatus.info}`
+        );
         ui.addAction('retry', async () => {
           const {conn, logout} = await connect();
           try {
@@ -50,7 +52,10 @@ async function checkUnits(connect, status, ui) {
         try {
           const info = await conn.facades.client.modelInfo();
           const user = info.ownerTag.split('@')[0].slice(5);
-          ui.addLink('open GUI', `https://jujucharms.com/u/${user}/${status.model.name}`);
+          ui.addLink(
+            'open GUI',
+            `https://jujucharms.com/u/${user}/${status.model.name}`
+          );
         } finally {
           logout();
         }
@@ -58,7 +63,6 @@ async function checkUnits(connect, status, ui) {
     }
   }
 }
-
 
 /**
   Check jujushell errors.
@@ -82,14 +86,17 @@ async function checkJujushell(connect, status, ui) {
         }
       });
       if (numErrors > 0) {
-        ui.error(`model ${status.model.name} - app ${app} exposed at ${dnsName} has ${numErrors} errors`);
+        ui.error(
+          `model ${
+            status.model.name
+          } - app ${app} exposed at ${dnsName} has ${numErrors} errors`
+        );
       }
     }
   } finally {
     logout();
   }
 }
-
 
 /**
   Send a XHR request using promises.
@@ -116,7 +123,6 @@ function makeRequest(method, url) {
     xhr.send();
   });
 }
-
 
 module.exports = {
   checkModel,

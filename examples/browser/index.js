@@ -3,13 +3,11 @@
 
 'use strict';
 
-
 const React = require('react');
 const ReactDOM = require('react-dom');
 
 const App = require('./components/app');
 const checkers = require('../../checkers');
-
 
 function main() {
   const facades = [
@@ -17,13 +15,15 @@ function main() {
     require('jujulib/api/facades/client-v1'),
     require('jujulib/api/facades/model-manager-v4')
   ];
-  const mountNode = document.getElementById("app");
-  ReactDOM.render(<App
-    checkers={[checkers.checkModel, checkers.checkUnits]}
-    options={{debug: false, facades: facades}}
-    url='wss://jimm.jujucharms.com:443/api'
-  />, mountNode);
+  const mountNode = document.getElementById('app');
+  ReactDOM.render(
+    <App
+      checkers={[checkers.checkModel, checkers.checkUnits]}
+      options={{debug: false, facades: facades}}
+      url="wss://jimm.jujucharms.com:443/api"
+    />,
+    mountNode
+  );
 }
-
 
 main();

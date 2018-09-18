@@ -3,12 +3,10 @@
 
 'use strict';
 
-
 const PropTypes = require('prop-types');
 const React = require('react');
 
 const {Col, Link, Row} = require('./widgets');
-
 
 function Login(props) {
   if (!props.url) {
@@ -25,6 +23,5 @@ function Login(props) {
 Login.propTypes = {
   url: PropTypes.string.isRequired
 };
-
 
 module.exports = Login;

@@ -3,7 +3,6 @@
 
 'use strict';
 
-
 const bakery = require('macaroon-bakery');
 const PropTypes = require('prop-types');
 const React = require('react');
@@ -16,7 +15,6 @@ const Header = require('./header');
 const Login = require('./login');
 const StatusBar = require('./statusbar');
 const {Col, Row} = require('./widgets');
-
 
 class App extends React.Component {
   constructor(props) {
@@ -31,7 +29,8 @@ class App extends React.Component {
       facades: props.options.facades,
       bakery: new bakery.Bakery({
         visitPage: resp => this.setState({loginURL: resp.Info.VisitURL}),
-        onSuccess: () => this.setState({loginURL: '', headerMsg: 'Check started'})
+        onSuccess: () =>
+          this.setState({loginURL: '', headerMsg: 'Check started'})
       })
     };
     const ui = new notes.UI(this._updateNote.bind(this));
@@ -63,12 +62,16 @@ class App extends React.Component {
     const logs = state.notes.reduce((prev, cur) => prev.concat(cur.logs), []);
     return (
       <div>
-        <Row><Col><h1>JAAS Monitor</h1></Col></Row>
-        <Header msg={state.headerMsg}></Header>
-        <Login url={state.loginURL}></Login>
-        <Dashboard notes={state.notes}></Dashboard>
+        <Row>
+          <Col>
+            <h1>JAAS Monitor</h1>
+          </Col>
+        </Row>
+        <Header msg={state.headerMsg} />
+        <Login url={state.loginURL} />
+        <Dashboard notes={state.notes} />
         <footer className="p-footer" id="footer">
-          <StatusBar logs={logs}></StatusBar>
+          <StatusBar logs={logs} />
         </footer>
       </div>
     );
@@ -83,6 +86,5 @@ App.propTypes = {
   }).isRequired,
   url: PropTypes.string.isRequired
 };
-
 
 module.exports = App;
