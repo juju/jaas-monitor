@@ -6,12 +6,25 @@
 const PropTypes = require('prop-types');
 const React = require('react');
 
+const {Col, Row} = require('./widgets');
+
 function StatusBar(props) {
   const text = props.logs
     .slice()
     .reverse()
     .join('\n');
-  return <textarea rows="7" readOnly={true} value={text} />;
+  return (
+    <Row>
+      <Col size={12}>
+        <textarea
+          rows="7"
+          readOnly={true}
+          value={text}
+          placeholder="Awaiting logs..."
+        />
+      </Col>
+    </Row>
+  );
 }
 StatusBar.propTypes = {
   logs: PropTypes.array.isRequired

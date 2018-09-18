@@ -15,4 +15,8 @@ function Notification(props) {
   );
 }
 
+Notification.propTypes = {
+  type: PropTypes.string.isRequired
+};
+
 module.exports = Notification;
