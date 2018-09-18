@@ -3,10 +3,8 @@
 
 'use strict';
 
-
 const jujulib = require('jujulib');
 const Limiter = require('concurrency-limiter');
-
 
 /**
   Run the monitor, which in turns run all the checkers against all the models
@@ -49,12 +47,14 @@ async function run(controllerURL, options, checkers, ui) {
   logout();
   // Retrieve the full status from every model.
   const promises = result.userModels.map(model => {
-    const modelURL = controllerURL.replace('/api', `/model/${model.model.uuid}/api`);
+    const modelURL = controllerURL.replace(
+      '/api',
+      `/model/${model.model.uuid}/api`
+    );
     return inspectModel(modelURL, options, limiter, checkers, ui);
   });
   await Promise.all(promises);
 }
-
 
 /**
   Manage connecting to Juju models and controllers, and reusing existing
@@ -79,16 +79,22 @@ class Connector {
     }
     const limiter = this._limiter;
     await limiter.enter();
-    const {conn, logout} = await jujulib.connectAndLogin(this.url, {}, this._options);
+    const {conn, logout} = await jujulib.connectAndLogin(
+      this.url,
+      {},
+      this._options
+    );
     this._conn = conn;
-    return {conn, logout: () => {
-      this._conn = null;
-      logout();
-      limiter.exit();
-    }};
+    return {
+      conn,
+      logout: () => {
+        this._conn = null;
+        logout();
+        limiter.exit();
+      }
+    };
   }
 }
-
 
 /**
   Run all provided checkers against the model at the provided URL.
@@ -120,7 +126,6 @@ async function inspectModel(modelURL, options, limiter, checkers, ui) {
   }
 }
 
-
 async function runChecker(checker, connect, status, ui) {
   ui = ui.withContext({checker: checker.name});
   try {
@@ -129,6 +134,5 @@ async function runChecker(checker, connect, status, ui) {
     ui.error(`cannot run checker ${checker.name}: ${err}`);
   }
 }
-
 
 module.exports = run;

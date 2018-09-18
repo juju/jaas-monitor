@@ -4,7 +4,6 @@
 
 const tap = require('tap');
 
-
 tap.test('monitor', t => {
   // TODO: write tests.
 

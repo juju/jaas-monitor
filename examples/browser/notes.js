@@ -3,7 +3,6 @@
 
 'use strict';
 
-
 class Note {
   constructor(key) {
     this.key = key;
@@ -15,9 +14,8 @@ class Note {
   }
 }
 
-
 class UI {
-  constructor(updateNote, ctx={}) {
+  constructor(updateNote, ctx = {}) {
     this._ctx = ctx;
     const parts = [];
     if (ctx.model) {
@@ -64,6 +62,5 @@ class UI {
     this._update(this._note);
   }
 }
-
 
 module.exports = {Note, UI};
