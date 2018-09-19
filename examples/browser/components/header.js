@@ -20,6 +20,7 @@ function Header(props) {
               alt="Juju logo"
               width="95"
             />
+            <span className="p-navigation__tagline">Monitor</span>
           </a>
         </div>
         <a
@@ -40,7 +41,7 @@ function Header(props) {
           <a href="#main-content">Jump to main content</a>
         </span>
         <ul className="p-navigation__links" role="menu">
-          <li className="p-navigation__link" role="menuitem">
+          <li className="p-navigation__link login" role="menuitem">
             <a href={props.url} target="_blank">
               Login
             </a>
