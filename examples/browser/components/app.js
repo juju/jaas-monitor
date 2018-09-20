@@ -60,13 +60,6 @@ class App extends React.Component {
     return (
       <div>
         <Header msg={state.headerMsg} url={state.loginURL} />
-        <div className="p-strip">
-          <Row>
-            <Col size={12}>
-              <h1 className="u-no-margin--bottom">Monitor your JAAS models.</h1>
-            </Col>
-          </Row>
-        </div>
         <Dashboard notifications={state.notes} />
         <footer className="p-footer" id="footer">
           <StatusBar logs={logs} />
