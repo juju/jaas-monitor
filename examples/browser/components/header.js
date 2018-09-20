@@ -36,34 +36,33 @@ function Header(props) {
           Close menu
         </a>
       </div>
-      <nav className="p-navigation__nav" role="menubar">
-        <span className="u-off-screen">
-          <a href="#main-content">Jump to main content</a>
-        </span>
-        <ul className="p-navigation__links" role="menu">
-          <li className="p-navigation__link login" role="menuitem">
-            <a href={props.url} target="_blank">
-              Login
-            </a>
-          </li>
-        </ul>
-      </nav>
+      {renderLogin(props.url)}
     </header>
   );
-  if (props.msg) {
-    return (
-      <Row>
-        <Col size={1}>
-          <Icon name="information" />
-        </Col>
-        <Col size={11}>{props.msg}</Col>
-      </Row>
-    );
-  }
 }
 
 Header.propTypes = {
-  msg: PropTypes.string.isRequired
+  url: PropTypes.string.isRequired
 };
+
+function renderLogin(url) {
+  if (!url) {
+    return null;
+  }
+  return (
+    <nav className="p-navigation__nav" role="menubar">
+      <span className="u-off-screen">
+        <a href="#main-content">Jump to main content</a>
+      </span>
+      <ul className="p-navigation__links" role="menu">
+        <li className="p-navigation__link login" role="menuitem">
+          <a href={url} target="_blank">
+            Login
+          </a>
+        </li>
+      </ul>
+    </nav>
+  );
+}
 
 module.exports = Header;

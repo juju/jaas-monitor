@@ -38,7 +38,7 @@ const Limiter = require('concurrency-limiter');
 */
 async function run(controllerURL, options, checkers, ui) {
   const limiter = new Limiter(20);
-  const connector = new Connector(controllerURL, options, limiter);
+  const connector = new Connector(controllerURL, options, ui, limiter);
   // Connect to the JAAS controller.
   const {conn, logout} = await connector.connect();
   const modelManager = conn.facades.modelManager;
@@ -66,9 +66,10 @@ async function run(controllerURL, options, checkers, ui) {
     connections.
 */
 class Connector {
-  constructor(url, options, limiter) {
+  constructor(url, options, ui, limiter) {
     this.url = url;
     this._options = options;
+    this._ui = ui;
     this._limiter = limiter;
     this._conn = null;
   }
@@ -77,6 +78,7 @@ class Connector {
     if (this._conn) {
       return {conn: this._conn, logout: () => {}};
     }
+    const ui = this._ui;
     const limiter = this._limiter;
     await limiter.enter();
     const {conn, logout} = await jujulib.connectAndLogin(
@@ -84,12 +86,14 @@ class Connector {
       {},
       this._options
     );
+    ui.log(`connected to ${this.url}`);
     this._conn = conn;
     return {
       conn,
       logout: () => {
         this._conn = null;
         logout();
+        ui.log(`disconnected from ${this.url}`);
         limiter.exit();
       }
     };
@@ -109,7 +113,7 @@ class Connector {
 */
 async function inspectModel(modelURL, options, limiter, checkers, ui) {
   ui = ui.withContext({model: modelURL});
-  const connector = new Connector(modelURL, options, limiter);
+  const connector = new Connector(modelURL, options, ui, limiter);
   try {
     const {conn, logout} = await connector.connect();
     ui.log(`inspecting model at ${modelURL}`);

@@ -33,7 +33,7 @@ Icon.propTypes = {
 
 function Link(props) {
   return (
-    <a href={props.href} target="_blank">
+    <a className="p-button--neutral" href={props.href} target="_blank">
       {props.children}
     </a>
   );
@@ -73,7 +73,8 @@ class Button extends React.Component {
 
 Button.propTypes = {
   callback: PropTypes.func.isRequired,
-  children: PropTypes.node
+  children: PropTypes.node,
+  type: PropTypes.string.isRequired
 };
 
 module.exports = {Button, Col, Icon, Link, Row};

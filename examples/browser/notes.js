@@ -15,7 +15,7 @@ class Note {
 }
 
 class UI {
-  constructor(updateNote, ctx = {}) {
+  constructor(addNote, addLog, ctx = {}) {
     this._ctx = ctx;
     const parts = [];
     if (ctx.model) {
@@ -25,41 +25,42 @@ class UI {
       parts.push(ctx.checker);
     }
     this._note = new Note(parts.join('-'));
-    this._update = updateNote;
+    this._addNote = addNote;
+    this._addLog = addLog;
   }
 
   withContext(ctx) {
-    return new UI(this._update, Object.assign({}, this._ctx, ctx));
+    const newContext = Object.assign({}, this._ctx, ctx);
+    return new UI(this._addNote, this._addLog, newContext);
   }
 
   log(msg) {
-    this._note.logs.push(msg);
-    this._update(this._note);
+    this._addLog(msg);
   }
 
   info(msg) {
     this._note.infos.push(msg);
-    this._update(this._note);
+    this._addNote(this._note);
   }
 
   error(msg) {
     this._note.errors.push(msg);
-    this._update(this._note);
+    this._addNote(this._note);
   }
 
   addAction(text, callback) {
     this._note.actions.push({text, callback});
-    this._update(this._note);
+    this._addNote(this._note);
   }
 
   addLink(text, href) {
     this._note.links.push({text, href});
-    this._update(this._note);
+    this._addNote(this._note);
   }
 
   refresh() {
     this._note = new Note(this._note.key);
-    this._update(this._note);
+    this._addNote(this._note);
   }
 }
 

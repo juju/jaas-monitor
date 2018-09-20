@@ -18,7 +18,11 @@ const {Col, Row} = require('./widgets');
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {loginURL: '', notes: [], headerMsg: ''};
+    this.state = {loginURL: '', logs: [], notes: []};
+
+    this._addNote = this._addNote.bind(this);
+    this._addLog = this._addLog.bind(this);
+    this._startMonitor = this._startMonitor.bind(this);
   }
 
   async componentDidMount() {
@@ -31,15 +35,23 @@ class App extends React.Component {
         onSuccess: () => this.setState({loginURL: ''})
       })
     };
-    const ui = new notes.UI(this._updateNote.bind(this));
+    const ui = new notes.UI(this._addNote, this._addLog);
+    await this._startMonitor(options, ui);
+  }
+
+  async _startMonitor(options, ui) {
+    const props = this.props;
     try {
       await monitor(props.url, options, props.checkers, ui);
     } catch (err) {
       ui.error(err);
     }
+    setTimeout(() => {
+      this._startMonitor(options, ui);
+    }, 3000);
   }
 
-  _updateNote(note) {
+  _addNote(note) {
     let found = false;
     const notes = this.state.notes.map(n => {
       if (n.key === note.key) {
@@ -54,15 +66,20 @@ class App extends React.Component {
     this.setState({notes: notes});
   }
 
+  _addLog(msg) {
+    const logs = this.state.logs;
+    logs.unshift(msg);
+    this.setState({logs: logs.slice(0, 99)});
+  }
+
   render() {
     const state = this.state;
-    const logs = state.notes.reduce((prev, cur) => prev.concat(cur.logs), []);
     return (
       <div>
-        <Header msg={state.headerMsg} url={state.loginURL} />
-        <Dashboard notifications={state.notes} />
+        <Header url={state.loginURL} />
+        <Dashboard notes={state.notes} />
         <footer className="p-footer" id="footer">
-          <StatusBar logs={logs} />
+          <StatusBar logs={state.logs} />
         </footer>
       </div>
     );
