@@ -15,7 +15,6 @@ class Dashboard extends React.Component {
   }
 
   render() {
-    console.log('============ DASHBOARD RENDER:', this.props.notifications);
     const notifications = this.props.notifications.map(notification => {
       const contents = [];
 

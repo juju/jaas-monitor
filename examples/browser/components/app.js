@@ -28,8 +28,7 @@ class App extends React.Component {
       facades: props.options.facades,
       bakery: new bakery.Bakery({
         visitPage: resp => this.setState({loginURL: resp.Info.VisitURL}),
-        onSuccess: () =>
-          this.setState({loginURL: '', headerMsg: 'Check started'})
+        onSuccess: () => this.setState({loginURL: ''})
       })
     };
     const ui = new notes.UI(this._updateNote.bind(this));
@@ -38,7 +37,6 @@ class App extends React.Component {
     } catch (err) {
       ui.error(err);
     }
-    this.setState({headerMsg: 'Check completed'});
   }
 
   _updateNote(note) {
