@@ -58,7 +58,7 @@ class Button extends React.Component {
   render() {
     const props = this.props;
     const state = this.state;
-    const buttonTypeClasses = `p-button--${props.type}`;
+    const buttonTypeClasses = `p-button--${props.type} u-no-margin--bottom`;
 
     return (
       <button
