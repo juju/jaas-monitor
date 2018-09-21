@@ -62,6 +62,7 @@ async function run(controllerURL, options, checkers, ui) {
 
   @param {String} url The URL of the controller or model where to connect to.
   @param {Object} options Options for establishing the jujulib connection.
+  @param {Object} ui An object that can be used to interact with the user.
   @param {Object} limiter A Limiter instance, used for limiting concurrent
     connections.
 */
@@ -72,31 +73,40 @@ class Connector {
     this._ui = ui;
     this._limiter = limiter;
     this._conn = null;
+    this._logout = null;
+    this._numClients = 0;
   }
 
   async connect() {
-    if (this._conn) {
-      return {conn: this._conn, logout: () => {}};
-    }
+    this._numClients++
     const ui = this._ui;
     const limiter = this._limiter;
-    await limiter.enter();
-    const {conn, logout} = await jujulib.connectAndLogin(
-      this.url,
-      {},
-      this._options
-    );
-    ui.log(`connected to ${this.url}`);
-    this._conn = conn;
-    return {
-      conn,
-      logout: () => {
-        this._conn = null;
-        logout();
-        ui.log(`disconnected from ${this.url}`);
-        limiter.exit();
+    const options = this._options;
+
+    const wrappedLogout = () => {
+      if (!this._conn) {
+        throw new Error('cannot logout: connection not established');
       }
+      this._numClients--
+      if (this._numClients) {
+        return;
+      }
+      this._logout();
+      this._conn = null;
+      this._logout = null;
+      ui.log(`disconnected from ${this.url}`);
+      limiter.exit();
     };
+
+    if (!this._conn) {
+      await limiter.enter();
+      const {conn, logout} = await jujulib.connectAndLogin(
+        this.url, {}, this._options);
+      ui.log(`connected to ${this.url}`);
+      this._conn = conn;
+      this._logout = logout
+    }
+    return {conn: this._conn, logout: wrappedLogout};
   }
 }
 

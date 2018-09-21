@@ -14,8 +14,15 @@ class Note {
   }
 }
 
+class Widget {
+  constructor(key, content) {
+    this.key = key;
+    this.content = content;
+  }
+}
+
 class UI {
-  constructor(addNote, addLog, addContent, ctx = {}) {
+  constructor(addNote, addLog, addWidget, ctx = {}) {
     this._ctx = ctx;
     const parts = [];
     if (ctx.model) {
@@ -27,12 +34,12 @@ class UI {
     this._note = new Note(parts.join('-'));
     this._addNote = addNote;
     this._addLog = addLog;
-    this._addContent = addContent;
+    this._addWidget = addWidget;
   }
 
   withContext(ctx) {
     const newContext = Object.assign({}, this._ctx, ctx);
-    return new UI(this._addNote, this._addLog, this._addContent, newContext);
+    return new UI(this._addNote, this._addLog, this._addWidget, newContext);
   }
 
   log(msg) {
@@ -54,7 +61,8 @@ class UI {
     note.actions.push({
       text: text,
       callback: () => callback(content => {
-        this._addContent(note.key, content);
+        this._addWidget(
+          note.key, new Widget(`${note.key}-${text}-widget`, content));
       })
     });
     this._addNote(note);

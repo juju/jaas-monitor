@@ -31,3 +31,7 @@ textarea {
     top: 0;
   }
 }
+
+a.p-button--neutral {
+  margin-bottom: 0;
+}

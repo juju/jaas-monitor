@@ -46,7 +46,7 @@ Link.propTypes = {
 class Button extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {disabled: false};
+    this.state = {disabled: !!props.disabled};
     this.onClick = this.onClick.bind(this);
   }
 
@@ -74,6 +74,7 @@ class Button extends React.Component {
 Button.propTypes = {
   callback: PropTypes.func.isRequired,
   children: PropTypes.node,
+  disabled: PropTypes.bool,
   type: PropTypes.string.isRequired
 };
 

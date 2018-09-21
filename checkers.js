@@ -58,6 +58,10 @@ async function checkUnits(connect, status, ui) {
           const {conn, logout} = await connect();
           let handle;
           handle = conn.facades.client.watch((err, delta) => {
+            if (err) {
+              ui.error(err);
+              return;
+            }
             handle.stop();
             logout();
             // write(<Status data={fromWatcher(delta).changed} />);

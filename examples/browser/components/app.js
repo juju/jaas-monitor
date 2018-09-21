@@ -18,11 +18,11 @@ const {Col, Row} = require('./widgets');
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {contents: {}, loginURL: '', logs: [], notes: []};
+    this.state = {loginURL: '', logs: [], notes: [], widgets: {}};
 
     this._addNote = this._addNote.bind(this);
     this._addLog = this._addLog.bind(this);
-    this._addContent = this._addContent.bind(this);
+    this._addWidget = this._addWidget.bind(this);
     this._startMonitor = this._startMonitor.bind(this);
   }
 
@@ -36,7 +36,7 @@ class App extends React.Component {
         onSuccess: () => this.setState({loginURL: ''})
       })
     };
-    const ui = new notes.UI(this._addNote, this._addLog, this._addContent);
+    const ui = new notes.UI(this._addNote, this._addLog, this._addWidget);
     await this._startMonitor(options, ui);
   }
 
@@ -49,7 +49,7 @@ class App extends React.Component {
     }
     setTimeout(() => {
       this._startMonitor(options, ui);
-    }, 30000);
+    }, 10000);
   }
 
   _addNote(note) {
@@ -73,16 +73,16 @@ class App extends React.Component {
     this.setState({logs: logs.slice(0, 99)});
   }
 
-  _addContent(key, content) {
+  _addWidget(key, widget) {
     const state = this.state;
-    const contents = {};
-    Object.keys(state.contents).forEach(k => {
-      contents[k] = state.contents[k].slice();
+    const widgets = {};
+    Object.keys(state.widgets).forEach(k => {
+      widgets[k] = state.widgets[k].slice();
     });
-    const value = contents[key] || [];
-    value.push(content);
-    contents[key] = value;
-    this.setState({contents: contents});
+    const value = widgets[key] || [];
+    value.push(widget);
+    widgets[key] = value;
+    this.setState({widgets});
   }
 
   render() {
@@ -90,7 +90,7 @@ class App extends React.Component {
     return (
       <div>
         <Header url={state.loginURL} />
-        <Dashboard notes={state.notes} contents={state.contents} />
+        <Dashboard notes={state.notes} widgets={state.widgets} />
         <footer className="p-footer" id="footer">
           <StatusBar logs={state.logs} />
         </footer>

@@ -14,6 +14,19 @@ class Dashboard extends React.Component {
     super(props);
   }
 
+  widgetDisplayed(note, text) {
+    const key = `${note.key}-${text}-widget`;
+    const widgets = this.props.widgets[note.key] || [];
+    console.log('================ widgets', this.props.widgets);
+    for (let i = 0; i < widgets.length; i++) {
+      if (widgets[i].key === key) {
+        console.log(`================== COMPARE ${widgets[i].key} == ${key}`);
+        return true;
+      }
+    }
+    return false;
+  }
+
   render() {
     const props = this.props;
     if (!props.notes.length) {
@@ -41,24 +54,25 @@ class Dashboard extends React.Component {
           </Row>
         );
       });
-
       if (note.actions.length || note.links.length) {
         const cols = [];
+        note.actions.forEach(({text, callback}, i) => {
+          const disabled = this.widgetDisplayed(note, text);
+          console.log('================ disabled:', disabled);
+          cols.push(
+            <li className="p-inline-list__item" key={note.key + '-action-' + i}>
+              <Button type="positive" callback={callback} disabled={disabled}>
+                {text}
+              </Button>
+            </li>
+          );
+        });
         note.links.forEach(({text, href}, i) => {
           cols.push(
             <li className="p-inline-list__item" key={note.key + '-link-' + i}>
               <Link href={href}>
                 {text}
               </Link>
-            </li>
-          );
-        });
-        note.actions.forEach(({text, callback}, i) => {
-          cols.push(
-            <li className="p-inline-list__item" key={note.key + '-action-' + i}>
-              <Button type="positive" callback={callback}>
-                {text}
-              </Button>
             </li>
           );
         });
@@ -71,11 +85,11 @@ class Dashboard extends React.Component {
         );
       }
 
-      (props.contents[note.key] || []).forEach((content, i) => {
+      (props.widgets[note.key] || []).forEach((widget, i) => {
         contents.push(
-          <Row key={note.key + '-content-' + i}>
+          <Row key={widget.key + i}>
             <Col size={12}>
-              <Notification type="information">{content}</Notification>
+              <Notification type="information">{widget.content}</Notification>
             </Col>
           </Row>
         );
@@ -95,8 +109,8 @@ class Dashboard extends React.Component {
 }
 
 Dashboard.propTypes = {
-  contents: PropTypes.object.isRequired,
-  notes: PropTypes.array.isRequired
+  notes: PropTypes.array.isRequired,
+  widgets: PropTypes.object.isRequired
 };
 
 module.exports = Dashboard;
