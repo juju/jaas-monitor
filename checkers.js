@@ -5,6 +5,9 @@
 
 const React = require('react');
 
+const Status = require('./components/shared/status/status/status');
+const {processDeltas} = require('./maraca/delta-handlers');
+
 
 /**
   Check that the model agent is up and running.
@@ -64,8 +67,35 @@ async function checkUnits(connect, status, ui) {
             }
             handle.stop();
             logout();
-            // write(<Status data={fromWatcher(delta).changed} />);
-            write(<span>Hello I am status</span>);
+            const valueStore = processDeltas(delta.deltas).changed;
+            write(
+              <Status
+                generateApplicationOnClick={() => {}}
+                generateApplicationURL={() => {}}
+                generateCharmURL={() => {}}
+                generateMachineOnClick={() => {}}
+                generateMachineURL={() => {}}
+                generateUnitOnClick={() => {}}
+                generateUnitURL={() => {}}
+                model={{
+                  cloud: 'aws',
+                  environmentName: 'broken',
+                  modelUUID: '39c2d8bf-3b35-4355-861f-68ac2a5f6133',
+                  region: 'ap-southeast-2',
+                  sla: 'unsupported',
+                  version: '2.4.3'
+                 }}
+                navigateToApplication={() => {}}
+                navigateToCharm={() => {}}
+                navigateToMachine={() => {}}
+                valueStore={{
+                  applications: valueStore.applications || {},
+                  machines: valueStore.machines || {},
+                  relations: valueStore.relations || {},
+                  remoteApplications: valueStore.remoteApplications || {},
+                  units: valueStore.units || {}
+                }} />
+            );
           });
 
         });
