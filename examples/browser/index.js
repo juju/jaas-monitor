@@ -11,6 +11,7 @@ const checkers = require('../../checkers');
 
 function main() {
   const facades = [
+    require('jujulib/api/facades/all-watcher-v1'),
     require('jujulib/api/facades/application-v5'),
     require('jujulib/api/facades/client-v1'),
     require('jujulib/api/facades/model-manager-v4')

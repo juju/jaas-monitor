@@ -3,6 +3,9 @@
 
 'use strict';
 
+const React = require('react');
+
+
 /**
   Check that the model agent is up and running.
 */
@@ -24,12 +27,14 @@ async function checkUnits(connect, status, ui) {
     for (let unit in units) {
       const workloadStatus = units[unit].workloadStatus;
       if (workloadStatus.status === 'error') {
+
         ui.error(
           `model ${status.model.name} - unit ${unit} is in ${
             workloadStatus.status
           } state: ${workloadStatus.info}`
         );
-        ui.addAction('Retry', async () => {
+
+        ui.addAction('Retry', async _ => {
           const {conn, logout} = await connect();
           try {
             ui.log(`retrying unit ${unit}`);
@@ -48,6 +53,19 @@ async function checkUnits(connect, status, ui) {
             checkUnits(connect, status, ui);
           }, 3000);
         });
+
+        ui.addAction('Show Status', async write => {
+          const {conn, logout} = await connect();
+          let handle;
+          handle = conn.facades.client.watch((err, delta) => {
+            handle.stop();
+            logout();
+            // write(<Status data={fromWatcher(delta).changed} />);
+            write(<span>Hello I am status</span>);
+          });
+
+        });
+
         const {conn, logout} = await connect();
         try {
           const info = await conn.facades.client.modelInfo();

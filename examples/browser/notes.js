@@ -15,7 +15,7 @@ class Note {
 }
 
 class UI {
-  constructor(addNote, addLog, ctx = {}) {
+  constructor(addNote, addLog, addContent, ctx = {}) {
     this._ctx = ctx;
     const parts = [];
     if (ctx.model) {
@@ -27,11 +27,12 @@ class UI {
     this._note = new Note(parts.join('-'));
     this._addNote = addNote;
     this._addLog = addLog;
+    this._addContent = addContent;
   }
 
   withContext(ctx) {
     const newContext = Object.assign({}, this._ctx, ctx);
-    return new UI(this._addNote, this._addLog, newContext);
+    return new UI(this._addNote, this._addLog, this._addContent, newContext);
   }
 
   log(msg) {
@@ -49,8 +50,14 @@ class UI {
   }
 
   addAction(text, callback) {
-    this._note.actions.push({text, callback});
-    this._addNote(this._note);
+    const note = this._note;
+    note.actions.push({
+      text: text,
+      callback: () => callback(content => {
+        this._addContent(note.key, content);
+      })
+    });
+    this._addNote(note);
   }
 
   addLink(text, href) {

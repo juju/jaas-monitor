@@ -22,9 +22,9 @@ class Dashboard extends React.Component {
     const notes = props.notes.map(note => {
       const contents = [];
 
-      note.infos.forEach(info => {
+      note.infos.forEach((info, i) => {
         contents.push(
-          <Row key={note.key + '-infos'}>
+          <Row key={note.key + '-info-' + i}>
             <Col size={12}>
               <Notification type="information">{info}</Notification>
             </Col>
@@ -32,9 +32,9 @@ class Dashboard extends React.Component {
         );
       });
 
-      note.errors.forEach(err => {
+      note.errors.forEach((err, i) => {
         contents.push(
-          <Row key={note.key + '-errors'}>
+          <Row key={note.key + '-err-' + i}>
             <Col size={12}>
               <Notification type="negative">{err}</Notification>
             </Col>
@@ -70,8 +70,20 @@ class Dashboard extends React.Component {
           </Row>
         );
       }
+
+      (props.contents[note.key] || []).forEach((content, i) => {
+        contents.push(
+          <Row key={note.key + '-content-' + i}>
+            <Col size={12}>
+              <Notification type="information">{content}</Notification>
+            </Col>
+          </Row>
+        );
+      });
+
       return contents;
     });
+
     return (
       <div className="p-strip--light">
         <Row>
@@ -83,6 +95,7 @@ class Dashboard extends React.Component {
 }
 
 Dashboard.propTypes = {
+  contents: PropTypes.object.isRequired,
   notes: PropTypes.array.isRequired
 };
 
