@@ -17,10 +17,8 @@ class Dashboard extends React.Component {
   widgetDisplayed(note, text) {
     const key = `${note.key}-${text}-widget`;
     const widgets = this.props.widgets[note.key] || [];
-    console.log('================ widgets', this.props.widgets);
     for (let i = 0; i < widgets.length; i++) {
       if (widgets[i].key === key) {
-        console.log(`================== COMPARE ${widgets[i].key} == ${key}`);
         return true;
       }
     }
@@ -58,7 +56,6 @@ class Dashboard extends React.Component {
         const cols = [];
         note.actions.forEach(({text, callback}, i) => {
           const disabled = this.widgetDisplayed(note, text);
-          console.log('================ disabled:', disabled);
           cols.push(
             <li className="p-inline-list__item" key={note.key + '-action-' + i}>
               <Button type="positive" callback={callback} disabled={disabled}>
