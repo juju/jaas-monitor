@@ -19,9 +19,12 @@ function main() {
   const mountNode = document.getElementById('app');
   ReactDOM.render(
     <App
-      checkers={[checkers.checkModel, checkers.checkUnits]}
+      checkers={[
+        checkers.checkModel,
+        checkers.checkUnits,
+        checkers.checkJujushell
+      ]}
       options={{debug: false, facades: facades}}
-      url="wss://jimm.jujucharms.com:443/api"
     />,
     mountNode
   );

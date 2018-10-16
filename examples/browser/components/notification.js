@@ -10,7 +10,7 @@ function Notification(props) {
   const notificationTypeClasses = `p-notification--${props.type}`;
   return (
     <div className={notificationTypeClasses}>
-      <p className="p-notification__response">{props.children}</p>
+      <div className="p-notification__response">{props.children}</div>
     </div>
   );
 }

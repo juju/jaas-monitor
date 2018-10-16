@@ -78,7 +78,7 @@ class Connector {
   }
 
   async connect() {
-    this._numClients++
+    this._numClients++;
     const ui = this._ui;
     const limiter = this._limiter;
     const options = this._options;
@@ -87,7 +87,7 @@ class Connector {
       if (!this._conn) {
         throw new Error('cannot logout: connection not established');
       }
-      this._numClients--
+      this._numClients--;
       if (this._numClients) {
         return;
       }
@@ -101,10 +101,13 @@ class Connector {
     if (!this._conn) {
       await limiter.enter();
       const {conn, logout} = await jujulib.connectAndLogin(
-        this.url, {}, this._options);
+        this.url,
+        {},
+        this._options
+      );
       ui.log(`connected to ${this.url}`);
       this._conn = conn;
-      this._logout = logout
+      this._logout = logout;
     }
     return {conn: this._conn, logout: wrappedLogout};
   }
@@ -136,7 +139,7 @@ async function inspectModel(modelURL, options, limiter, checkers, ui) {
     await Promise.all(promises);
     logout();
   } catch (err) {
-    ui.error(`cannot inspect model at ${modelURL}: ${err}`);
+    ui.error(`cannot inspect model at ${modelURL}: ${err.message}`);
   }
 }
 
@@ -145,7 +148,7 @@ async function runChecker(checker, connect, status, ui) {
   try {
     await checker(connect, status, ui);
   } catch (err) {
-    ui.error(`cannot run checker ${checker.name}: ${err}`);
+    ui.error(`cannot run checker ${checker.name}: ${err.message}`);
   }
 }
 

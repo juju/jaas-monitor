@@ -49,7 +49,7 @@ class App extends React.Component {
     }
     setTimeout(() => {
       this._startMonitor(options, ui);
-    }, 10000);
+    }, props.interval * 1000);
   }
 
   _addNote(note) {
@@ -101,11 +101,16 @@ class App extends React.Component {
 
 App.propTypes = {
   checkers: PropTypes.array.isRequired,
+  interval: PropTypes.number,
   options: shapeup.shape({
     debug: PropTypes.bool,
     facades: PropTypes.array
   }).isRequired,
   url: PropTypes.string.isRequired
+};
+App.defaultProps = {
+  interval: 30,
+  url: 'wss://jimm.jujucharms.com:443/api'
 };
 
 module.exports = App;

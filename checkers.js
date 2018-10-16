@@ -5,7 +5,6 @@
 
 const React = require('react');
 
-
 /**
   Check that the model agent is up and running.
 */
@@ -22,12 +21,24 @@ async function checkModel(connect, status, ui) {
   Provide the ability to retry units in error state.
 */
 async function checkUnits(connect, status, ui) {
+  const refresh = () => {
+    setTimeout(async () => {
+      const {conn, logout} = await connect();
+      try {
+        status = await conn.facades.client.fullStatus();
+      } finally {
+        logout();
+      }
+      ui.refresh();
+      checkUnits(connect, status, ui);
+    }, 3000);
+  };
+
   for (let app in status.applications) {
     const units = status.applications[app].units;
     for (let unit in units) {
       const workloadStatus = units[unit].workloadStatus;
       if (workloadStatus.status === 'error') {
-
         ui.error(
           `model ${status.model.name} - unit ${unit} is in ${
             workloadStatus.status
@@ -42,17 +53,31 @@ async function checkUnits(connect, status, ui) {
           } finally {
             logout();
           }
-          setTimeout(async () => {
+          refresh();
+        });
+
+        const machine = units[unit].machine;
+        if (unitsInMachine(status, machine).length <= 1) {
+          ui.addAction('Replace', async _ => {
             const {conn, logout} = await connect();
             try {
-              status = await conn.facades.client.fullStatus();
+              ui.log(`replacing unit ${unit}`);
+              ui.log(`destroying machine ${machine}`);
+              await conn.facades.client.destroyMachines({
+                machineNames: machine,
+                force: true
+              });
+              ui.log(`adding another unit to ${app}`);
+              await conn.facades.application.addUnits({
+                application: app,
+                numUnits: 1
+              });
             } finally {
               logout();
             }
-            ui.refresh();
-            checkUnits(connect, status, ui);
-          }, 3000);
-        });
+            refresh();
+          });
+        }
 
         ui.addAction('Show Status', async write => {
           const {conn, logout} = await connect();
@@ -67,7 +92,6 @@ async function checkUnits(connect, status, ui) {
             // write(<Status data={fromWatcher(delta).changed} />);
             write(<span>Hello I am status</span>);
           });
-
         });
 
         const {conn, logout} = await connect();
@@ -87,6 +111,26 @@ async function checkUnits(connect, status, ui) {
 }
 
 /**
+  Return a list of units located in the given machine.
+
+  @param {Object} status The model status.
+  @param {String} machine The machine id.
+  @returns {Array} A list of names for units placed in the given machine.
+*/
+function unitsInMachine(status, machine) {
+  const result = [];
+  for (let app in status.applications) {
+    const units = status.applications[app].units;
+    for (let unit in units) {
+      if (units[unit].machine === machine) {
+        result.push(unit);
+      }
+    }
+  }
+  return result;
+}
+
+/**
   Check jujushell errors.
 */
 async function checkJujushell(connect, status, ui) {
@@ -100,11 +144,21 @@ async function checkJujushell(connect, status, ui) {
       }
       const result = await application.get({application: app});
       const dnsName = result.config['dns-name'].value;
-      const resp = await makeRequest('GET', `https://${dnsName}/metrics`);
+      const target = `https://${dnsName}/metrics`;
+      const url = `https://cors-anywhere.herokuapp.com/${target}`;
+      ui.log(`making a GET request to ${target}`);
+      const resp = await makeRequest('GET', url);
       let numErrors = 0;
+      const errors = {};
       resp.split('\n').forEach(line => {
         if (line.startsWith('jujushell_errors_count')) {
-          numErrors += parseInt(line.split(' ').reverse()[0], 10);
+          const message = line.slice(
+            line.indexOf('"') + 1,
+            line.lastIndexOf('"')
+          );
+          const num = parseInt(line.split(' ').reverse()[0], 10);
+          numErrors += num;
+          errors[message] = num;
         }
       });
       if (numErrors > 0) {
@@ -113,6 +167,33 @@ async function checkJujushell(connect, status, ui) {
             status.model.name
           } - app ${app} exposed at ${dnsName} has ${numErrors} errors`
         );
+
+        ui.addAction('Show Errors', async write => {
+          const rows = [];
+          for (let message in errors) {
+            rows.push(
+              <tr key={message}>
+                <td key="message">{message}</td>
+                <td key="#">{errors[message]}</td>
+              </tr>
+            );
+          }
+          write(
+            <table>
+              <thead>
+                <tr>
+                  <th key="message">message</th>
+                  <th key="#">#</th>
+                </tr>
+              </thead>
+              <tbody>{rows}</tbody>
+            </table>
+          );
+        });
+
+        ui.addAction('Open Terminal', async write => {
+          write(<span>Terminal not implemented</span>);
+        });
       }
     }
   } finally {
