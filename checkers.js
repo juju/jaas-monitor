@@ -3,6 +3,8 @@
 
 'use strict';
 
+const {processDeltas} = require('@canonical/maraca/lib/delta-handlers');
+const {Status, Terminal} = require('@canonical/juju-react-components');
 const React = require('react');
 
 /**
@@ -89,8 +91,38 @@ async function checkUnits(connect, status, ui) {
             }
             handle.stop();
             logout();
-            // write(<Status data={fromWatcher(delta).changed} />);
-            write(<span>Hello I am status</span>);
+            const data = processDeltas(delta.deltas).changed;
+            console.log(data);
+            write(
+              <Status
+                generateApplicationOnClick={() => {}}
+                generateApplicationURL={() => {}}
+                generateCharmURL={() => {}}
+                generateMachineOnClick={() => {}}
+                generateMachineURL={() => {}}
+                generateUnitOnClick={() => {}}
+                generateUnitURL={() => {}}
+                getIconPath={() => {}}
+                model={{
+                  cloud: 'aws',
+                  environmentName: 'broken',
+                  modelUUID: '39c2d8bf-3b35-4355-861f-68ac2a5f6133',
+                  region: 'ap-southeast-2',
+                  sla: 'unsupported',
+                  version: '2.4.3'
+                }}
+                navigateToApplication={() => {}}
+                navigateToCharm={() => {}}
+                navigateToMachine={() => {}}
+                valueStore={{
+                  applications: data.applications || {},
+                  machines: data.machines || {},
+                  relations: data.relations || {},
+                  remoteApplications: data.remoteApplications || {},
+                  units: data.units || {}
+                }}
+              />
+            );
           });
         });
 
@@ -192,7 +224,15 @@ async function checkJujushell(connect, status, ui) {
         });
 
         ui.addAction('Open Terminal', async write => {
-          write(<span>Terminal not implemented</span>);
+          write(
+            <Terminal
+              WebSocket={WebSocket}
+              addNotification={() => {}}
+              address={`wss://${dnsName}/ws/`}
+              changeState={() => {}}
+              creds={{macaroons: 'TODO'}}
+            />
+          );
         });
       }
     }
