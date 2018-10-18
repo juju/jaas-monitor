@@ -7,17 +7,21 @@ class Note {
   constructor(key) {
     this.key = key;
     this.logs = [];
-    this.infos = [];
     this.errors = [];
     this.actions = [];
     this.links = [];
   }
+
+  getWidgetKey(text) {
+    return `${this.key}-${text}-widget`;
+  }
 }
 
 class Widget {
-  constructor(key, content) {
+  constructor(key, content, autoclose) {
     this.key = key;
     this.content = content;
+    this.autoclose = autoclose;
   }
 }
 
@@ -46,11 +50,6 @@ class UI {
     this._addLog(msg);
   }
 
-  info(msg) {
-    this._note.infos.push(msg);
-    this._addNote(this._note);
-  }
-
   error(msg) {
     this._note.errors.push(msg);
     this._addNote(this._note);
@@ -60,10 +59,12 @@ class UI {
     const note = this._note;
     note.actions.push({
       text: text,
-      callback: () => callback(content => {
-        this._addWidget(
-          note.key, new Widget(`${note.key}-${text}-widget`, content));
-      })
+      callback: () =>
+        callback((content, options = {}) => {
+          const widgetKey = note.getWidgetKey(text);
+          const autoclose = !!options.autoclose;
+          this._addWidget(note.key, new Widget(widgetKey, content, autoclose));
+        })
     });
     this._addNote(note);
   }

@@ -81,6 +81,7 @@ class Connector {
     this._numClients++;
     const ui = this._ui;
     const limiter = this._limiter;
+    const url = this.url;
     const options = this._options;
 
     const wrappedLogout = () => {
@@ -94,22 +95,23 @@ class Connector {
       this._logout();
       this._conn = null;
       this._logout = null;
-      ui.log(`disconnected from ${this.url}`);
+      ui.log(`disconnected from ${url}`);
       limiter.exit();
     };
 
     if (!this._conn) {
       await limiter.enter();
-      const {conn, logout} = await jujulib.connectAndLogin(
-        this.url,
-        {},
-        this._options
-      );
-      ui.log(`connected to ${this.url}`);
+      const {conn, logout} = await jujulib.connectAndLogin(url, {}, options);
+      ui.log(`connected to ${url}`);
       this._conn = conn;
       this._logout = logout;
     }
-    return {conn: this._conn, logout: wrappedLogout};
+    return {
+      conn: this._conn,
+      logout: wrappedLogout,
+      options: options,
+      url: url
+    };
   }
 }
 

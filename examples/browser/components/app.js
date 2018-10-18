@@ -23,6 +23,8 @@ class App extends React.Component {
     this._addNote = this._addNote.bind(this);
     this._addLog = this._addLog.bind(this);
     this._addWidget = this._addWidget.bind(this);
+    this._removeWidget = this._removeWidget.bind(this);
+    this._copyWidgets = this._copyWidgets.bind(this);
     this._startMonitor = this._startMonitor.bind(this);
   }
 
@@ -52,8 +54,23 @@ class App extends React.Component {
     }, props.interval * 1000);
   }
 
+  _copyWidgets() {
+    const state = this.state;
+    const widgets = {};
+    Object.keys(state.widgets).forEach(k => {
+      widgets[k] = state.widgets[k].slice();
+    });
+    return widgets;
+  }
+
   _addNote(note) {
     let found = false;
+    const widgets = this._copyWidgets();
+    if (!note.errors.length) {
+      widgets[note.key] = (widgets[note.key] || []).filter(widget => {
+        return !widget.autoclose;
+      });
+    }
     const notes = this.state.notes.map(n => {
       if (n.key === note.key) {
         found = true;
@@ -64,7 +81,7 @@ class App extends React.Component {
     if (!found) {
       notes.push(note);
     }
-    this.setState({notes: notes});
+    this.setState({notes, widgets});
   }
 
   _addLog(msg) {
@@ -74,14 +91,21 @@ class App extends React.Component {
   }
 
   _addWidget(key, widget) {
-    const state = this.state;
-    const widgets = {};
-    Object.keys(state.widgets).forEach(k => {
-      widgets[k] = state.widgets[k].slice();
-    });
+    const widgets = this._copyWidgets();
     const value = widgets[key] || [];
     value.push(widget);
     widgets[key] = value;
+    this.setState({widgets});
+  }
+
+  _removeWidget(key) {
+    const state = this.state;
+    const widgets = {};
+    Object.keys(state.widgets).forEach(k => {
+      widgets[k] = state.widgets[k].slice().filter(widget => {
+        return widget.key !== key;
+      });
+    });
     this.setState({widgets});
   }
 
@@ -90,7 +114,11 @@ class App extends React.Component {
     return (
       <div>
         <Header url={state.loginURL} />
-        <Dashboard notes={state.notes} widgets={state.widgets} />
+        <Dashboard
+          notes={state.notes}
+          removeWidget={this._removeWidget}
+          widgets={state.widgets}
+        />
         <footer className="p-footer" id="footer">
           <StatusBar logs={state.logs} />
         </footer>

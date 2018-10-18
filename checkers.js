@@ -3,6 +3,8 @@
 
 'use strict';
 
+const {processDeltas} = require('@canonical/maraca/lib/delta-handlers');
+const {Status, Terminal} = require('@canonical/juju-react-components');
 const React = require('react');
 
 /**
@@ -45,10 +47,10 @@ async function checkUnits(connect, status, ui) {
           } state: ${workloadStatus.info}`
         );
 
-        ui.addAction('Retry', async _ => {
+        ui.addAction('Retry', async write => {
           const {conn, logout} = await connect();
           try {
-            ui.log(`retrying unit ${unit}`);
+            write(`retrying unit ${unit}`, {autoclose: true});
             await conn.facades.client.resolved({unitName: unit});
           } finally {
             logout();
@@ -58,10 +60,10 @@ async function checkUnits(connect, status, ui) {
 
         const machine = units[unit].machine;
         if (unitsInMachine(status, machine).length <= 1) {
-          ui.addAction('Replace', async _ => {
+          ui.addAction('Replace', async write => {
             const {conn, logout} = await connect();
             try {
-              ui.log(`replacing unit ${unit}`);
+              write(`replacing unit ${unit}`, {autoclose: true});
               ui.log(`destroying machine ${machine}`);
               await conn.facades.client.destroyMachines({
                 machineNames: machine,
@@ -89,8 +91,40 @@ async function checkUnits(connect, status, ui) {
             }
             handle.stop();
             logout();
-            // write(<Status data={fromWatcher(delta).changed} />);
-            write(<span>Hello I am status</span>);
+            const data = processDeltas(delta.deltas).changed;
+            const model = status.model;
+            const modelTag = conn.info.modelTag.split('-');
+            modelTag.shift();
+            write(
+              <Status
+                generateApplicationOnClick={() => {}}
+                generateApplicationURL={() => {}}
+                generateCharmURL={() => {}}
+                generateMachineOnClick={() => {}}
+                generateMachineURL={() => {}}
+                generateUnitOnClick={() => {}}
+                generateUnitURL={() => {}}
+                getIconPath={() => {}}
+                model={{
+                  cloud: model.cloudTag.split('-')[1],
+                  environmentName: model.name,
+                  modelUUID: modelTag.join('-'),
+                  region: model.region,
+                  sla: model.sla,
+                  version: model.version
+                }}
+                navigateToApplication={() => {}}
+                navigateToCharm={() => {}}
+                navigateToMachine={() => {}}
+                valueStore={{
+                  applications: data.applications || {},
+                  machines: data.machines || {},
+                  relations: data.relations || {},
+                  remoteApplications: data.remoteApplications || {},
+                  units: data.units || {}
+                }}
+              />
+            );
           });
         });
 
@@ -134,7 +168,7 @@ function unitsInMachine(status, machine) {
   Check jujushell errors.
 */
 async function checkJujushell(connect, status, ui) {
-  const {conn, logout} = await connect();
+  const {conn, logout, options, url} = await connect();
   const application = conn.facades.application;
   try {
     for (let app in status.applications) {
@@ -145,9 +179,11 @@ async function checkJujushell(connect, status, ui) {
       const result = await application.get({application: app});
       const dnsName = result.config['dns-name'].value;
       const target = `https://${dnsName}/metrics`;
-      const url = `https://cors-anywhere.herokuapp.com/${target}`;
       ui.log(`making a GET request to ${target}`);
-      const resp = await makeRequest('GET', url);
+      const resp = await makeRequest(
+        'GET',
+        `https://cors-anywhere.herokuapp.com/${target}`
+      );
       let numErrors = 0;
       const errors = {};
       resp.split('\n').forEach(line => {
@@ -191,9 +227,25 @@ async function checkJujushell(connect, status, ui) {
           );
         });
 
-        ui.addAction('Open Terminal', async write => {
-          write(<span>Terminal not implemented</span>);
-        });
+        // If the terminal is connected to JAAS, and we are also connected to
+        // JAAS, then we can also offer the ability to actually open the shell.
+        const host = url.split('/')[2];
+        if (result.config['juju-addrs'].value === host) {
+          ui.addAction('Open Terminal', async write => {
+            const storage = options.bakery.storage;
+            const token = JSON.parse(atob(storage.get('identity')));
+            const macaroons = {'https://api.jujucharms.com/identity': token};
+            write(
+              <Terminal
+                WebSocket={WebSocket}
+                addNotification={() => {}}
+                address={`wss://${dnsName}/ws/`}
+                changeState={() => {}}
+                creds={{macaroons: macaroons}}
+              />
+            );
+          });
+        }
       }
     }
   } finally {
