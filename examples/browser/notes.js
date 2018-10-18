@@ -18,9 +18,10 @@ class Note {
 }
 
 class Widget {
-  constructor(key, content) {
+  constructor(key, content, autoclose) {
     this.key = key;
     this.content = content;
+    this.autoclose = autoclose;
   }
 }
 
@@ -59,9 +60,10 @@ class UI {
     note.actions.push({
       text: text,
       callback: () =>
-        callback(content => {
+        callback((content, options = {}) => {
           const widgetKey = note.getWidgetKey(text);
-          this._addWidget(note.key, new Widget(widgetKey, content));
+          const autoclose = !!options.autoclose;
+          this._addWidget(note.key, new Widget(widgetKey, content, autoclose));
         })
     });
     this._addNote(note);

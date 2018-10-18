@@ -50,7 +50,7 @@ async function checkUnits(connect, status, ui) {
         ui.addAction('Retry', async write => {
           const {conn, logout} = await connect();
           try {
-            write(`retrying unit ${unit}`);
+            write(`retrying unit ${unit}`, {autoclose: true});
             await conn.facades.client.resolved({unitName: unit});
           } finally {
             logout();
@@ -63,7 +63,7 @@ async function checkUnits(connect, status, ui) {
           ui.addAction('Replace', async write => {
             const {conn, logout} = await connect();
             try {
-              write(`replacing unit ${unit}`);
+              write(`replacing unit ${unit}`, {autoclose: true});
               ui.log(`destroying machine ${machine}`);
               await conn.facades.client.destroyMachines({
                 machineNames: machine,

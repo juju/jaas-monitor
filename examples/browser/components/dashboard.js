@@ -69,12 +69,14 @@ class Dashboard extends React.Component {
       }
 
       (props.widgets[note.key] || []).forEach((widget, i) => {
+        let onClose = props.removeWidget.bind(null, widget.key);
+        if (widget.autoclose) {
+          onClose = null;
+        }
         contents.push(
           <Row key={widget.key + i}>
             <Col size={12}>
-              <Notification
-                onClose={props.removeWidget.bind(null, widget.key)}
-                type="information">
+              <Notification onClose={onClose} type="information">
                 {widget.content}
               </Notification>
             </Col>
