@@ -15,7 +15,7 @@ class Dashboard extends React.Component {
   }
 
   widgetDisplayed(note, text) {
-    const key = `${note.key}-${text}-widget`;
+    const key = note.getWidgetKey(text);
     const widgets = this.props.widgets[note.key] || [];
     for (let i = 0; i < widgets.length; i++) {
       if (widgets[i].key === key) {

@@ -65,7 +65,7 @@ class App extends React.Component {
     if (!found) {
       notes.push(note);
     }
-    this.setState({notes: notes});
+    this.setState({notes});
   }
 
   _addLog(msg) {

@@ -11,6 +11,10 @@ class Note {
     this.actions = [];
     this.links = [];
   }
+
+  getWidgetKey(text) {
+    return `${this.key}-${text}-widget`;
+  }
 }
 
 class Widget {
@@ -56,10 +60,8 @@ class UI {
       text: text,
       callback: () =>
         callback(content => {
-          this._addWidget(
-            note.key,
-            new Widget(`${note.key}-${text}-widget`, content)
-          );
+          const widgetKey = note.getWidgetKey(text);
+          this._addWidget(note.key, new Widget(widgetKey, content));
         })
     });
     this._addNote(note);

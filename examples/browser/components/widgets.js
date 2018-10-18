@@ -43,21 +43,17 @@ Link.propTypes = {
   href: PropTypes.string.isRequired
 };
 
-class Button extends React.Component {
-  render() {
-    const props = this.props;
-    const buttonTypeClasses = `p-button--${props.type} u-no-margin--bottom`;
-    return (
-      <button
-        className={buttonTypeClasses}
-        disabled={!!props.disabled}
-        onClick={props.callback}>
-        {props.children}
-      </button>
-    );
-  }
+function Button(props) {
+  const buttonTypeClasses = `p-button--${props.type} u-no-margin--bottom`;
+  return (
+    <button
+      className={buttonTypeClasses}
+      disabled={!!props.disabled}
+      onClick={props.callback}>
+      {props.children}
+    </button>
+  );
 }
-
 Button.propTypes = {
   callback: PropTypes.func.isRequired,
   children: PropTypes.node,
