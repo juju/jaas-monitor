@@ -33,16 +33,6 @@ class Dashboard extends React.Component {
     const notes = props.notes.map(note => {
       const contents = [];
 
-      note.infos.forEach((info, i) => {
-        contents.push(
-          <Row key={note.key + '-info-' + i}>
-            <Col size={12}>
-              <Notification type="information">{info}</Notification>
-            </Col>
-          </Row>
-        );
-      });
-
       note.errors.forEach((err, i) => {
         contents.push(
           <Row key={note.key + '-err-' + i}>
@@ -67,17 +57,13 @@ class Dashboard extends React.Component {
         note.links.forEach(({text, href}, i) => {
           cols.push(
             <li className="p-inline-list__item" key={note.key + '-link-' + i}>
-              <Link href={href}>
-                {text}
-              </Link>
+              <Link href={href}>{text}</Link>
             </li>
           );
         });
         contents.push(
           <Row key={note.key + '-actions-and-links'}>
-            <ul className="p-inline-list">
-              {cols}
-            </ul>
+            <ul className="p-inline-list">{cols}</ul>
           </Row>
         );
       }
@@ -86,7 +72,11 @@ class Dashboard extends React.Component {
         contents.push(
           <Row key={widget.key + i}>
             <Col size={12}>
-              <Notification type="information">{widget.content}</Notification>
+              <Notification
+                onClose={props.removeWidget.bind(null, widget.key)}
+                type="information">
+                {widget.content}
+              </Notification>
             </Col>
           </Row>
         );
@@ -107,6 +97,7 @@ class Dashboard extends React.Component {
 
 Dashboard.propTypes = {
   notes: PropTypes.array.isRequired,
+  removeWidget: PropTypes.func.isRequired,
   widgets: PropTypes.object.isRequired
 };
 

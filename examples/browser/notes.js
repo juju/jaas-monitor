@@ -7,7 +7,6 @@ class Note {
   constructor(key) {
     this.key = key;
     this.logs = [];
-    this.infos = [];
     this.errors = [];
     this.actions = [];
     this.links = [];
@@ -46,11 +45,6 @@ class UI {
     this._addLog(msg);
   }
 
-  info(msg) {
-    this._note.infos.push(msg);
-    this._addNote(this._note);
-  }
-
   error(msg) {
     this._note.errors.push(msg);
     this._addNote(this._note);
@@ -60,10 +54,13 @@ class UI {
     const note = this._note;
     note.actions.push({
       text: text,
-      callback: () => callback(content => {
-        this._addWidget(
-          note.key, new Widget(`${note.key}-${text}-widget`, content));
-      })
+      callback: () =>
+        callback(content => {
+          this._addWidget(
+            note.key,
+            new Widget(`${note.key}-${text}-widget`, content)
+          );
+        })
     });
     this._addNote(note);
   }

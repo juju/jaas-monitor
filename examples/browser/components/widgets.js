@@ -44,27 +44,14 @@ Link.propTypes = {
 };
 
 class Button extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {disabled: !!props.disabled};
-    this.onClick = this.onClick.bind(this);
-  }
-
-  onClick() {
-    this.setState({disabled: true});
-    this.props.callback();
-  }
-
   render() {
     const props = this.props;
-    const state = this.state;
     const buttonTypeClasses = `p-button--${props.type} u-no-margin--bottom`;
-
     return (
       <button
         className={buttonTypeClasses}
-        disabled={state.disabled}
-        onClick={this.onClick}>
+        disabled={!!props.disabled}
+        onClick={props.callback}>
         {props.children}
       </button>
     );
