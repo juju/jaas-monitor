@@ -15,6 +15,7 @@ async function checkModel(connect, status, ui) {
   const modelStatus = model.modelStatus.status;
   if (modelStatus !== 'available') {
     ui.error(`model ${model.name} - status is ${modelStatus}`);
+    ui.addLink('File RT', `http://rt.admin.canonical.com/`);
   }
 }
 
