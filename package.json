@@ -38,7 +38,7 @@
     "tap": "^12.0.1"
   },
   "dependencies": {
-    "@canonical/juju-react-components": "file:../react-components",
+    "@canonical/juju-react-components": "^0.5.0",
     "@canonical/maraca": "^0.1.2",
     "btoa": "^1.2.1",
     "components": "^0.1.0",
