@@ -5,7 +5,7 @@
   "main": "monitor.js",
   "scripts": {
     "build": "parcel build examples/browser/index.html",
-    "start": "parcel examples/browser/index.html",
+    "serve": "parcel examples/browser/index.html",
     "lint": "eslint .",
     "test": "tap test.js",
     "precommit": "pretty-quick --staged"

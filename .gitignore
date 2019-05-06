@@ -55,9 +55,9 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-
 # Parcel
 .cache/
 dist/
+
+.docker-project
+.yarn.canonical-webteam-jaas-monitor*
